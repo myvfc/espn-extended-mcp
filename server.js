@@ -1,4 +1,7 @@
 // server.js
+import fs from "fs";
+const manifest = JSON.parse(fs.readFileSync("./manifest.json", "utf8"));
+
 import express from "express";
 import {
   getTeamInfo,
@@ -16,7 +19,7 @@ import {
   getPlayByPlay
 } from "./espn.js";
 import { truncateJson } from "./utils.js";
-import manifest from "./manifest.json" assert { type: "json" };
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
