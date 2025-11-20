@@ -2,20 +2,15 @@
   "schemaVersion": "1.0",
   "nameForModel": "espn_extended_mcp",
   "nameForHuman": "ESPN Extended MCP",
-  "descriptionForModel": "Provides extended structured data from ESPN: team info, rosters, depth charts, injuries, standings, athlete bios & stats, news, game summary, play-by-play, and more, across multiple sports.",
-  "descriptionForHuman": "Extended ESPN data (teams, athletes, standings, news, game summaries, and more) for Sky and other bots.",
+  "descriptionForModel": "Extended ESPN data: rosters, injuries, bios, stats, standings, depth charts, conferences, news.",
+  "descriptionForHuman": "Extended ESPN API access for multi-sport MCP tools.",
   "auth": {
     "type": "bearer",
-    "instructions": "Include Authorization: Bearer <MCP_API_KEY> when calling /mcp.",
-    "authorizationType": "Bearer"
-  },
-  "api": {
-    "type": "openapi-http",
-    "url": "/manifest.json",
-    "isUserAuthenticated": true
+    "authorizationType": "Bearer",
+    "instructions": "Pass Authorization: Bearer <MCP_API_KEY>"
   },
   "server": {
-    "url": "https://your-railway-app-url.up.railway.app/mcp",
-    "healthUrl": "https://your-railway-app-url.up.railway.app/health"
+    "url": "/mcp",
+    "healthUrl": "/health"
   }
 }
