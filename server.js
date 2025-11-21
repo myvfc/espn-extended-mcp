@@ -20,31 +20,55 @@ import {
 import { truncateJson } from "./utils.js";
 
 const app = express();
-const PORT = process.env.PORT || 8080;  // Changed to 8080 to match your logs
+const PORT = process.env.PORT || 8080;
 const MCP_API_KEY = process.env.MCP_API_KEY || "";
 
 // Middleware
 app.use(express.json({ limit: "1mb" }));
+
+// IMPORTANT: Health check MUST come before auth middleware
+app.get("/", (req, res) => {
+  res.status(200).json({ 
+    status: "ok", 
+    service: "ESPN Extended MCP",
+    port: PORT 
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "healthy" });
+});
+
+// Manifest (before auth too)
+app.get("/manifest.json", (req, res) => res.json(manifest));
+
+// Logging middleware
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);  // FIXED: Template literal
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
 
-// Auth
+// Auth middleware (only for protected routes)
 app.use((req, res, next) => {
-  if (req.path === "/health" || req.path === "/manifest.json") return next();
+  // Skip auth for health/manifest
+  if (req.path === "/" || req.path === "/health" || req.path === "/manifest.json") {
+    return next();
+  }
+  
   const auth = req.headers.authorization || "";
   const token = auth.split(" ")[1];
-  if (!MCP_API_KEY) return res.status(500).json({ error: "No MCP_API_KEY set" });
-  if (token !== MCP_API_KEY) return res.status(401).json({ error: "Unauthorized" });
+  
+  if (!MCP_API_KEY) {
+    console.warn("⚠️  No MCP_API_KEY set - authentication disabled");
+    return next();
+  }
+  
+  if (token !== MCP_API_KEY) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  
   next();
 });
-
-// Health
-app.get("/health", (req, res) => res.status(200).send("OK"));
-
-// Manifest
-app.get("/manifest.json", (req, res) => res.json(manifest));
 
 // Tools registry
 const tools = {
@@ -119,23 +143,42 @@ app.post("/mcp", async (req, res) => {
     }
     return res.json(rpcError(id, -32601, `Unknown method: ${method}`));
   } catch (err) {
+    console.error("MCP Error:", err);
     return res.json(rpcError(id, -32603, "Internal error", { message: err.message }));
   }
 });
 
-// Error handlers
+// Graceful shutdown
+let isShuttingDown = false;
+
+process.on('SIGTERM', () => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  console.log('SIGTERM received, shutting down gracefully...');
+  
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+  
+  // Force exit after 10 seconds
+  setTimeout(() => {
+    console.error('Forced shutdown after timeout');
+    process.exit(1);
+  }, 10000);
+});
+
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  server.close(() => {
-    process.exit(0);
-  });
+// Start server
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 ESPN Extended MCP listening on port ${PORT}`);
+  console.log(`Health check: http://localhost:${PORT}/health`);
 });
 
-// Start server - FIXED: Bind to 0.0.0.0 and store server reference
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 ESPN Extended MCP listening on port ${PORT}`);  // FIXED: Template literal
-});
+// Keep-alive (prevents Railway from thinking process is idle)
+setInterval(() => {
+  console.log(`[HEARTBEAT] Server alive at ${new Date().toISOString()}`);
+}, 60000); // Every 60 seconds
