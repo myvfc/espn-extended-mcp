@@ -1,16 +1,12 @@
 // utils.js
-
 const SPORT_MAP = {
   football: "football/college-football",
   "college-football": "football/college-football",
   ncaaf: "football/college-football",
-
   "mens-college-basketball": "basketball/mens-college-basketball",
   ncaam: "basketball/mens-college-basketball",
-
   "womens-college-basketball": "basketball/womens-college-basketball",
   ncaaw: "basketball/womens-college-basketball",
-
   softball: "softball/college-softball",
   baseball: "baseball/college-baseball",
   soccer: "soccer/college-soccer",
@@ -19,10 +15,10 @@ const SPORT_MAP = {
 };
 
 const TEAM_SLUG_ALIASES = {
-  ou: "oklahoma-sooners",
-  sooners: "oklahoma-sooners",
-  oklahoma: "oklahoma-sooners",
-  "oklahoma sooners": "oklahoma-sooners"
+  ou: "201",
+  sooners: "201",
+  oklahoma: "201",
+  "oklahoma sooners": "201"
 };
 
 export function normalizeSport(sport) {
@@ -35,9 +31,8 @@ export function normalizeTeamSlug(name) {
   if (!name) return null;
   const key = name.toLowerCase().trim();
   if (TEAM_SLUG_ALIASES[key]) return TEAM_SLUG_ALIASES[key];
-
   return key
-    .replace(/[’'"]/g, "")
+    .replace(/[''"]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
@@ -61,26 +56,22 @@ export function truncateJson(obj, max = 4000) {
 export function formatTeamSummary(team, extra = {}) {
   const lines = [];
   const name = team.displayName || team.name || "Unknown Team";
-
-  lines.push(`**${name}**`);
-  if (extra.conference) lines.push(`Conference: ${extra.conference}`);
-  if (extra.record) lines.push(`Record: ${extra.record}`);
-  if (extra.rank) lines.push(`Rank: ${extra.rank}`);
-  if (extra.coach) lines.push(`Head Coach: ${extra.coach}`);
-
+  lines.push(`**${name}**`);  // FIXED
+  if (extra.conference) lines.push(`Conference: ${extra.conference}`);  // FIXED
+  if (extra.record) lines.push(`Record: ${extra.record}`);  // FIXED
+  if (extra.rank) lines.push(`Rank: ${extra.rank}`);  // FIXED
+  if (extra.coach) lines.push(`Head Coach: ${extra.coach}`);  // FIXED
   return lines.join("\n");
 }
 
 export function formatAthleteSummary(player) {
   const lines = [];
   const name = player.fullName || player.displayName || "Unknown Athlete";
-
-  lines.push(`**${name}**`);
-  if (player.team?.displayName) lines.push(`Team: ${player.team.displayName}`);
-  if (player.jersey) lines.push(`Jersey: #${player.jersey}`);
+  lines.push(`**${name}**`);  // FIXED
+  if (player.team?.displayName) lines.push(`Team: ${player.team.displayName}`);  // FIXED
+  if (player.jersey) lines.push(`Jersey: #${player.jersey}`);  // FIXED
   if (player.position?.abbreviation)
-    lines.push(`Position: ${player.position.abbreviation}`);
-
+    lines.push(`Position: ${player.position.abbreviation}`);  // FIXED
   return lines.join("\n");
 }
 
