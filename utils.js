@@ -52,26 +52,27 @@ export function truncateJson(obj, max = 4000) {
   return str.length <= max ? str : str.slice(0, max) + "\n\n... (truncated)";
 }
 
-// Summaries…
+// Summaries
 export function formatTeamSummary(team, extra = {}) {
   const lines = [];
   const name = team.displayName || team.name || "Unknown Team";
-  lines.push(`**${name}**`);  // FIXED
-  if (extra.conference) lines.push(`Conference: ${extra.conference}`);  // FIXED
-  if (extra.record) lines.push(`Record: ${extra.record}`);  // FIXED
-  if (extra.rank) lines.push(`Rank: ${extra.rank}`);  // FIXED
-  if (extra.coach) lines.push(`Head Coach: ${extra.coach}`);  // FIXED
+  lines.push(`**${name}**`);
+  if (extra.conference) lines.push(`Conference: ${extra.conference}`);
+  if (extra.record) lines.push(`Record: ${extra.record}`);
+  if (extra.rank) lines.push(`Rank: ${extra.rank}`);
+  if (extra.coach) lines.push(`Head Coach: ${extra.coach}`);
   return lines.join("\n");
 }
 
 export function formatAthleteSummary(player) {
   const lines = [];
   const name = player.fullName || player.displayName || "Unknown Athlete";
-  lines.push(`**${name}**`);  // FIXED
-  if (player.team?.displayName) lines.push(`Team: ${player.team.displayName}`);  // FIXED
-  if (player.jersey) lines.push(`Jersey: #${player.jersey}`);  // FIXED
+  lines.push(`**${name}**`);
+  if (player.team?.displayName) lines.push(`Team: ${player.team.displayName}`);
+  if (player.jersey) lines.push(`Jersey: #${player.jersey}`);
   if (player.position?.abbreviation)
-    lines.push(`Position: ${player.position.abbreviation}`);  // FIXED
+    lines.push(`Position: ${player.position.abbreviation}`);
   return lines.join("\n");
 }
+
 
