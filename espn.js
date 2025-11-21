@@ -52,8 +52,27 @@ export async function getTeamRoster({ sport, teamId, teamSlug, ttlMs }) {
   const url = teamBase(sp, tk) + "/roster";
 
   const data = await getJson(url, ttlMs);
-  const players = (data.athletes || []).slice(0, 10).map((p) => p.displayName);
-  return { summary: "Roster sample:\n" + players.join("\n"), raw: data };
+  
+  // Athletes are grouped by position (offense, defense, etc.)
+  const allAthletes = [];
+  if (data.athletes && Array.isArray(data.athletes)) {
+    for (const group of data.athletes) {
+      if (group.items && Array.isArray(group.items)) {
+        allAthletes.push(...group.items);
+      }
+    }
+  }
+  
+  const players = allAthletes.slice(0, 15).map((p) => {
+    const jersey = p.jersey ? `#${p.jersey}` : '';
+    const pos = p.position?.abbreviation || p.position?.name || '';
+    return `${jersey} ${p.displayName} - ${pos}`.trim();
+  });
+  
+  return { 
+    summary: `Roster (${allAthletes.length} players):\n` + players.join("\n"), 
+    raw: data 
+  };
 }
 
 export async function getTeamDepthChart({ sport, teamId, teamSlug, ttlMs }) {
